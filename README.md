@@ -4,13 +4,13 @@
 
 #### Add user to dialout group
 
-```
+```bash
 sudo usermod -a -G dialout $USER
 ```
 **You need to log out and login to enable this!**
 
 #### Install rosdep
-```
+```bash
 sudo apt install python3-rosdep
 sudo rosdep init
 rosdep update
@@ -19,7 +19,7 @@ rosdep update
 #### Build and install micro-ROS agent
 See https://micro.ros.org/docs/tutorials/core/first_application_linux/
 
-```
+```bash
 # Source the ROS 2 installation
 source /opt/ros/$ROS_DISTRO/setup.bash
 
@@ -43,13 +43,13 @@ source install/local_setup.bash
 
 ##### Creating the micro-ROS agent
 Let’s first of all create a micro-ROS agent:
-```
+```bash
 # Download micro-ROS-Agent packages
 ros2 run micro_ros_setup create_agent_ws.sh
 ```
 Now, let’s build the agent packages and, when this is done, source the installation:
 
-```
+```bash
 # Build step
 ros2 run micro_ros_setup build_agent.sh
 source install/local_setup.bash
@@ -59,12 +59,12 @@ source install/local_setup.bash
 
 You can add the micro-ROS workspace setup files to your .bashrc so the files do not have to be sourced every time a new command line is opened.
 
-```
+```bash
 echo source ~/microros_ws/install/local_setup.bash >> ~/.bashrc
 ```
 
 ##### Running micro-ROS agent
-```
+```bash
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
 ```
 
@@ -86,7 +86,7 @@ Install the Micro ROS Arduino library in the Arduino IDE:
 **Goal:** Get distance readings from the ultrasonic sensor
 
 Start with this skeleton code:
-```arduino
+```cpp
 #include <HCSR04.h>
 
 #define SONAR_TRIGGER_PIN 14
@@ -117,7 +117,7 @@ void loop() {
 **Goal:** Set up ROS communication infrastructure
 
 Add these includes at the top:
-```arduino
+```cpp
 #include <micro_ros_arduino.h>
 #include <rclc/rclc.h>
 #include <std_msgs/msg/float64.h>
@@ -201,13 +201,13 @@ ros2 topic echo /distance
 **Goal:** Receive a boolean value to change the internal LED state
 
 #### Add includes
-```arduino
+```cpp
 #include <rclc/executor.h>
 #include <std_msgs/msg/bool.h>
 ```
 
 #### Add variables
-```arduino
+```cpp
 #define LED_PIN 2
 
 rclc_executor_t executor;
@@ -215,7 +215,7 @@ rcl_subscription_t subscriber;
 std_msgs__msg__Bool sub_msg;
 ```
 #### In the setup(), add a subscriber and an executor
-```arduino
+```cpp
 // Create subscriber
 rclc_subscription_init_default(
     &subscriber,
@@ -232,7 +232,7 @@ rclc_executor_add_subscription(&executor, &subscriber, &sub_msg, &led_callback, 
 `&led_callback` is a pointer to a callback function that is called each time a message is received on the topic.
 
 #### led_callback function
-```arduino
+```cpp
 void led_callback(const void * msgin) {
   bool data = ((const std_msgs__msg__Bool *)msgin)->data;
   digitalWrite(LED_PIN, data ? HIGH : LOW);
@@ -240,7 +240,7 @@ void led_callback(const void * msgin) {
 ```
 
 #### Running the executor in the loop()
-```arduino
+```cpp
 rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
 ```
 
