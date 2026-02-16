@@ -86,7 +86,7 @@ Install the Micro ROS Arduino library in the Arduino IDE:
 **Goal:** Get distance readings from the ultrasonic sensor
 
 Start with this skeleton code:
-```cpp
+```arduino
 #include <HCSR04.h>
 
 #define SONAR_TRIGGER_PIN 14
