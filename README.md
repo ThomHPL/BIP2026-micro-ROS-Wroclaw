@@ -244,10 +244,10 @@ void led_callback(const void * msgin) {
 rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
 ```
 
-**Checkpoint:** Subscribe to the topic on your host:
+**Checkpoint:** Try to publish to the topic to light up the LED:
 ```bash
-ros2 topic echo /distance
-# You should see distance values updating
+ros2 topic pub /led_cpontrol std_msgs/Bool "data: 1"
+# The LED should light up
 ```
 ---
 
