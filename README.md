@@ -100,6 +100,8 @@ rosdep update
 
 # Install and build
 ```bash
+export ROS_EXPORT=jazzy
+source /opt/ros/jazzy/setup.bash
 # Create a workspace and download the micro-ROS tools
 mkdir microros_ws
 cd microros_ws
