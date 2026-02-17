@@ -100,8 +100,18 @@ rosdep update
 
 # Install and build
 ```bash
+# Create a workspace and download the micro-ROS tools
+mkdir microros_ws
+cd microros_ws
+git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
+rosdep install --from-paths src --ignore-src -r -y --as-root apt:false
+colcon build
+
+# Add the microros agent qnd msgs sources
 git clone https://github.com/ThomHPL/BIP2026-micro-ROS-Wroclaw.git
-cp -R BIP2026-micro-ROS-Wroclaw/microros_ws ~/
+cp -R BIP2026-micro-ROS-Wroclaw/microros_ws/src/micro-ros-agent ~/microros_ws/src/
+cp -R BIP2026-micro-ROS-Wroclaw/microros_ws/src/micro_ros_msgs ~/microros_ws/src/
+
 cd ~/microros_ws
 rosdep install --from-paths src --ignore-src -r -y --as-root apt:false
 colcon build
