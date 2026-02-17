@@ -1,6 +1,7 @@
 # Micro ROS on MCU Workshop
 ## Step 1 - Installation
 ### Install micro-ROS agent
+<!--
 #### Installing tools
 ##### Add user to dialout group
 
@@ -53,11 +54,63 @@ Now, let’s build the agent packages and, when this is done, source the install
 ros2 run micro_ros_setup build_agent.sh
 source install/local_setup.bash
 ```
+
+-->
+
+# Create a user-local rosdep directory
+
+```bash
+mkdir -p ~/.ros/rosdep/sources.list.d
+```
+
+# Create the default sources list
+
+```bash
+nano ~/.ros/rosdep/sources.list.d/20-default.list
+```
+
+Put this inside:
+```ruby
+yaml https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/base.yaml
+yaml https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml
+yaml https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/ruby.yaml
+gbpdistro https://raw.githubusercontent.com/ros/rosdistro/master/jazzy/distribution.yaml jazzy
+```
+
+Save and exit.
+
+# Tell rosdep to use your local config
+
+Add this to your shell:
+```bash
+export ROSDEP_SOURCE_PATH=$HOME/.ros/rosdep/sources.list.d
+```
+
+To make it permanent:
+```bash
+echo 'export ROSDEP_SOURCE_PATH=$HOME/.ros/rosdep/sources.list.d' >> ~/.bashrc
+source ~/.bashrc
+```
+
+# Update rosdep
+
+```bash
+rosdep update
+```
+
+# Install and build
 ```bash
 rosdep install --from-paths src --ignore-src -r -y --as-root apt:false
 colcon build
-source install/local_setup.bash 
+
+source install/local_setup.bash
 ```
+
+# Run agent
+```bash
+ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
+```
+
 
 ##### Add micro-ROS environment to bashrc (optional)
 
