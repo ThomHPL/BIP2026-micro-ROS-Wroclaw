@@ -251,6 +251,158 @@ ros2 topic pub /led_cpontrol std_msgs/Bool "data: 1"
 ```
 ---
 
-## Step 2 - ESP-NOW
+## Step 3 - ESP-NOW
 
-## Step 3 - And now?
+### Generic Gateway Code
+
+### Exercise 1: Initialize WiFi and ESP-NOW
+**Goal:** Set up the ESP32 module for ESP-NOW communication
+
+Create a **new Arduino sketch** and start with this skeleton code:
+```cpp
+// ========== LIBRARIES ==========
+#include <esp_now.h>
+#include <esp_wifi.h>
+#include <WiFi.h>
+
+// ========== SETUP FUNCTION ==========
+void setup() {
+  // Initialize serial communication for debugging
+  Serial.begin(115200);
+
+  // Initialize WiFi
+  WiFi.begin();
+  // Set the Wi-Fi channel (e.g., channel 1-13), should match between boards
+  esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE);
+
+  // Initialize ESP-NOW
+  esp_now_init();
+
+  Serial.println("Setup complete");
+  Serial.print("MAC Address: ");
+  Serial.println(WiFi.macAddress());
+}
+
+// ========== MAIN LOOP ==========
+void loop() {
+  delay(1000);
+}
+```
+
+**Checkpoint:** Upload and verify the MAC address prints in Serial Monitor (115200 baud).
+
+**Register somewhere this MAC address for later!**
+
+---
+
+### Exercise 2: Add Function Prototypes and Peer Variables
+**Goal:** Define the callback functions and peer information structure
+
+Add these after the includes:
+```cpp
+// ========== FUNCTION PROTOTYPES ==========
+void OnDataSent(const wifi_tx_info_t* info, esp_now_send_status_t status);
+void OnDataRecv(const esp_now_recv_info* info, const unsigned char* incomingData, int len);
+esp_err_t addPeer(uint8_t* mac, esp_now_peer_info_t* peerInfo);
+
+// Variables
+uint8_t peerMAC[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+```
+
+**Note:** Update `peerMAC` with the actual MAC address of the **peer** ESP32 you want to communicate with.
+
+**Checkpoint:** Code should compile without errors.
+
+---
+
+### Exercise 3: Register Callbacks
+**Goal:** Set up callback functions to handle sent and received data
+
+In `setup()`, after `esp_now_init()`, add:
+```cpp
+  esp_now_register_send_cb(OnDataSent);
+  esp_now_register_recv_cb(OnDataRecv);
+```
+
+Create the callback function stubs before `setup()`:
+```cpp
+void OnDataSent(const wifi_tx_info_t* info, esp_now_send_status_t status) { 
+  Serial.print("Last Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
+
+void OnDataRecv(const esp_now_recv_info* info, const unsigned char* incomingData, int len) {
+  Serial.print("Received ");
+  Serial.print(len);
+  Serial.println(" bytes");
+}
+```
+
+**Checkpoint:** Code should compile and callbacks should trigger when data is sent/received (checked later).
+
+---
+
+### Exercise 4: Implement the addPeer Function
+**Goal:** Create a function to add peer devices to ESP-NOW
+
+Add this function before `setup()`:
+```cpp
+esp_err_t addPeer(uint8_t* mac, esp_now_peer_info_t* peerInfo){
+  if(peerInfo == NULL){
+    peerInfo = (esp_now_peer_info_t*)malloc(sizeof(esp_now_peer_info_t));
+    memset(peerInfo, 0, sizeof(esp_now_peer_info_t));
+  }
+  memcpy(peerInfo->peer_addr, mac, 6);
+  peerInfo->channel = 0;
+  peerInfo->encrypt = false;
+  return esp_now_add_peer(peerInfo);
+}
+```
+
+In `setup()`, after `esp_now_register_recv_cb()`, add:
+```cpp
+  addPeer(peerMAC, NULL);
+```
+
+**Checkpoint:** Code should compile without errors.
+
+---
+
+### Exercise 5: Send Data via ESP-NOW
+**Goal:** Transmit messages to the peer device
+
+In `loop()`, replace the delay with:
+```cpp
+void loop() {
+  // Wait before next measurement
+  delay(1000);  // Send data every 1000ms
+  char msg[16] = "Hello";
+  esp_now_send(peerMAC, (uint8_t*)msg, strlen(msg));
+}
+```
+
+**Checkpoint:** Upload to one ESP32. The `OnDataSent` callback should print "Delivery Success" if the peer MAC is reachable.
+
+---
+
+### Exercise 6: Receive and Display Data
+**Goal:** Parse received messages and display them
+
+Update the `OnDataRecv()` callback:
+```cpp
+void OnDataRecv(const esp_now_recv_info* info, const unsigned char* incomingData, int len) {
+  char msg[len+1] = {0};
+  memcpy((void*)incomingData, msg, len);
+
+  Serial.print("Received data: ");
+  Serial.println((char*) msg);
+}
+```
+
+**Checkpoint:** Set up two ESP32 boards, upload gateway code with the second ESP32 MAC to the first one, and modified code with the first ESP32 MAC to the other. Messages should print in the gateway Serial Monitor.
+
+---
+
+### Sensor and micro-ROS boards 
+
+One student has to follow file `0-Distant-Sensor.md`, the other follows `1-micro-ROS-Gateway.md`.
