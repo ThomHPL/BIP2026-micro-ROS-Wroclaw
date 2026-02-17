@@ -233,7 +233,7 @@ Add this to your `setup()` function after `HCSR04.begin()`:
     &publisher,
     &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-    /* PUT YOUR NODE NAME HERE */
+    /* PUT YOUR TOPIC NAME HERE */
   );
   
   Serial.println("Micro-ROS initialized");
