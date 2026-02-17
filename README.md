@@ -1,18 +1,19 @@
 # Micro ROS on MCU Workshop
 ## Step 1 - Installation
 ### Install micro-ROS agent
-
-#### Add user to dialout group
+#### Installing tools
+##### Add user to dialout group
 
 ```bash
 sudo usermod -a -G dialout $USER
 ```
 **You need to log out and login to enable this!**
 
-#### Install rosdep
+##### Install rosdep
 ```bash
-sudo apt install python3-rosdep
+sudo apt install python3-rosdep python3-pip colcon
 sudo rosdep init
+sudo apt update
 rosdep update
 ```
 
@@ -20,6 +21,9 @@ rosdep update
 See https://micro.ros.org/docs/tutorials/core/first_application_linux/
 
 ```bash
+# Create the environment variable (replace zith ros version on the computer)
+export ROS_EXPORT=jazzy
+
 # Source the ROS 2 installation
 source /opt/ros/$ROS_DISTRO/setup.bash
 
@@ -28,15 +32,10 @@ mkdir microros_ws
 cd microros_ws
 git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
 
-# Update dependencies using rosdep
-sudo apt update && rosdep update
+# Install from path
 rosdep install --from-paths src --ignore-src -y
 
-# Install pip
-sudo apt-get install python3-pip
-
 # Build micro-ROS tools and source them
-sudo apt install colcon
 colcon build
 source install/local_setup.bash
 ```
