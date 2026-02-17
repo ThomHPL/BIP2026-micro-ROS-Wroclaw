@@ -100,6 +100,9 @@ rosdep update
 
 # Install and build
 ```bash
+git clone https://github.com/ThomHPL/BIP2026-micro-ROS-Wroclaw.git
+cp -R BIP2026-micro-ROS-Wroclaw/microros_ws ~/
+cd ~/microros_ws
 rosdep install --from-paths src --ignore-src -r -y --as-root apt:false
 colcon build
 
