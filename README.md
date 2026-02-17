@@ -110,6 +110,7 @@ rosdep install --from-paths src --ignore-src -r -y --as-root apt:false
 colcon build
 
 # Add the microros agent qnd msgs sources
+cd ~/
 git clone https://github.com/ThomHPL/BIP2026-micro-ROS-Wroclaw.git
 cp -R BIP2026-micro-ROS-Wroclaw/microros_ws/src/micro-ros-agent ~/microros_ws/src/
 cp -R BIP2026-micro-ROS-Wroclaw/microros_ws/src/micro_ros_msgs ~/microros_ws/src/
@@ -464,7 +465,7 @@ Update the `OnDataRecv()` callback:
 ```cpp
 void OnDataRecv(const esp_now_recv_info* info, const unsigned char* incomingData, int len) {
   char msg[len+1] = {0};
-  memcpy((void*)incomingData, msg, len);
+  memcpy(msg, (void*)incomingData, len);
 
   Serial.print("Received data: ");
   Serial.println((char*) msg);
