@@ -1,18 +1,20 @@
 # Micro ROS on MCU Workshop
 ## Step 1 - Installation
 ### Install micro-ROS agent
-
-#### Add user to dialout group
+<!--
+#### Installing tools
+##### Add user to dialout group
 
 ```bash
 sudo usermod -a -G dialout $USER
 ```
 **You need to log out and login to enable this!**
 
-#### Install rosdep
+##### Install rosdep
 ```bash
-sudo apt install python3-rosdep
+sudo apt install python3-rosdep python3-pip colcon
 sudo rosdep init
+sudo apt update
 rosdep update
 ```
 
@@ -20,6 +22,9 @@ rosdep update
 See https://micro.ros.org/docs/tutorials/core/first_application_linux/
 
 ```bash
+# Create the environment variable (replace zith ros version on the computer)
+export ROS_EXPORT=jazzy
+
 # Source the ROS 2 installation
 source /opt/ros/$ROS_DISTRO/setup.bash
 
@@ -28,15 +33,10 @@ mkdir microros_ws
 cd microros_ws
 git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
 
-# Update dependencies using rosdep
-sudo apt update && rosdep update
+# Install from path
 rosdep install --from-paths src --ignore-src -y
 
-# Install pip
-sudo apt-get install python3-pip
-
 # Build micro-ROS tools and source them
-sudo apt install colcon
 colcon build
 source install/local_setup.bash
 ```
@@ -54,6 +54,63 @@ Now, let’s build the agent packages and, when this is done, source the install
 ros2 run micro_ros_setup build_agent.sh
 source install/local_setup.bash
 ```
+
+-->
+
+# Create a user-local rosdep directory
+
+```bash
+mkdir -p ~/.ros/rosdep/sources.list.d
+```
+
+# Create the default sources list
+
+```bash
+nano ~/.ros/rosdep/sources.list.d/20-default.list
+```
+
+Put this inside:
+```ruby
+yaml https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/base.yaml
+yaml https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml
+yaml https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/ruby.yaml
+gbpdistro https://raw.githubusercontent.com/ros/rosdistro/master/jazzy/distribution.yaml jazzy
+```
+
+Save and exit.
+
+# Tell rosdep to use your local config
+
+Add this to your shell:
+```bash
+export ROSDEP_SOURCE_PATH=$HOME/.ros/rosdep/sources.list.d
+```
+
+To make it permanent:
+```bash
+echo 'export ROSDEP_SOURCE_PATH=$HOME/.ros/rosdep/sources.list.d' >> ~/.bashrc
+source ~/.bashrc
+```
+
+# Update rosdep
+
+```bash
+rosdep update
+```
+
+# Install and build
+```bash
+rosdep install --from-paths src --ignore-src -r -y --as-root apt:false
+colcon build
+
+source install/local_setup.bash
+```
+
+# Run agent
+```bash
+ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
+```
+
 
 ##### Add micro-ROS environment to bashrc (optional)
 
